@@ -1,0 +1,57 @@
+name: Android APK (Slint)
+
+on:
+    push:
+    pull_request:
+
+jobs:
+    build-apk:
+        runs-on: ubuntu-latest
+
+        env:
+            CARGO_TERM_COLOR: always
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Set up JDK 17 (required by Android tooling)
+              uses: actions/setup-java@v4
+              with:
+                  distribution: temurin
+                  java-version: "17"
+
+            - name: Set up Android SDK (cmdline-tools + platform-tools)
+              uses: android-actions/setup-android@v3
+
+            - name: Install NDK (r26d)
+              uses: nttld/setup-ndk@v1
+              with:
+                  ndk-version: r26d
+
+            - name: Install Rust toolchain + Android target
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  targets: aarch64-linux-android
+
+            - name: Cache Cargo
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      ~/.cargo/bin
+                      ~/.cargo/registry
+                      ~/.cargo/git
+                      target
+                  key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+            - name: Install cargo-apk
+              run: cargo install cargo-apk --locked --force
+
+            - name: Build APK (release)
+              run: |
+                  cargo apk build --lib --target aarch64-linux-android
+
+            - name: Upload APK artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: slint-minesweeper-arm64
+                  path: target/**/*.apk

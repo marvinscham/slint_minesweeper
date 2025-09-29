@@ -15,7 +15,7 @@ implicit_return = "deny"
 needless_return = "allow"
 
 [dependencies]
-slint = "1.8.0"
+slint = "1.12"
 rand = "0.8.5"
 web-time = "1.1.0" # https://github.com/rust-lang/rust/issues/48564
 
@@ -26,3 +26,16 @@ slint-build = "1.8.0"
 wasm-bindgen = { version = "0.2" }
 getrandom = { version = "0.2.2", features = ["js"] }
 web-sys = { version = "0.3.72", features = ["Window", "Location", "console"] }
+
+[target.'cfg(target_os = "android")'.dependencies.slint]
+version = "1.12"
+features = ["backend-android-activity-06"]
+
+[package.metadata.android]
+package = "dev.marvinscham.minesweeper"
+label   = "Minesweeper"
+build_targets = ["aarch64-linux-android"]
+
+[package.metadata.android.sdk]
+min_sdk_version    = 26
+target_sdk_version = 34
